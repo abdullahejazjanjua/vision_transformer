@@ -3,19 +3,66 @@ import time
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class ViT(nn.Module):
-    def __init__(self, embed_dim, num_heads, num_classes):
+    def __init__(self, image_size, patch_size, embed_dim, num_classes, num_heads):
         super().__init__()
         self.embed_dim = embed_dim
-        self.pos_encoding = PositionalEncoding()
-        self.layer_norm_01 = LayerNormalization(embed_dim)
-        self.MHA = EfficientMultiHeadedAttention(embed_dim, num_classes)
-        self.layer_norm_01 = LayerNormalization(embed_dim)
-        self.mlp = nn.Linear(embed_dim, num_classes)
+        self.patch_embeddings = self.get_patch_embeddings(x)
+        self.num_patches = (image_size // patch_size) * (image_size // patch_size)
+
+        self.pos_encoding = nn.Parameter(torch.randn((1, self.num_patches + 1, embed_dim)))
+
+        self.cls_token = nn.Parameter(torch.randn(1, 1, embed_dim)) # Same Question "What's in this image?" thats why first dim is 1
+
+        self.mlp_head = ClassificationHead(embed_dim, num_classes)
     
     def forward(self, x):
-        pass
+        x = self.get_patch_embeddings(x)
+        batch_size, num_patches, _ = x.shape
+        cls_tokens = self.cls_token.repeat(batch_size, 1, 1) 
+        x = torch.concat((cls_tokens, x), dim=1)
+        x = x + self.pos_encoding[:, :(num_patches + 1)]
+        x = self.encoder(x)
 
+        return self.mlp_head(x)
+
+
+
+    def get_patch_embeddings(self, x):
+        # TODO: Complete this
+        return x
+
+
+class VisionEncoder(nn.Module):
+    def __init__(self, image_size, patch_size, embed_dim, mlp_dim, num_heads):
+        super().__init__()
+
+        # TODO: Complete this
+
+class ClassificationHead(nn.Module):
+    def __init__(self, embed_dim, num_classes):
+        super().__init__()
+        self.classification_head = nn.Linear(embed_dim, num_classes)
+
+    def forward(self, x):
+        x_cls = x[:, 0, :] # Extract the [cls] which contains "Whats the most important information for this patch?"
+        return self.classification_head(x_cls)
+
+class MLP(nn.Module):
+    def __init__(self, embed_dim, hidden_dim):
+        super().__init__()
+        self.embed_dim = embed_dim
+        self.hidden_dim = hidden_dim
+        self.ffn = nn.Sequential(
+            LayerNormalization(embed_dim),
+            nn.Linear(embed_dim, hidden_dim),
+            nn.GELU(),
+            nn.Linear(hidden_dim, embed_dim)
+        )
+    def forward(self, x):
+        return self.ffn(x)
+    
 # I just found out that MultiHeadAttention is not just Attention n times
 # You lied to me https://youtu.be/bX2QwpjsmuA?si=LTpbFdlAsaUMmt2h
 
@@ -26,6 +73,7 @@ class EfficientMultiHeadedAttention(nn.Module):
         self.num_heads = num_heads
         self.head_dim = embed_dim // num_heads
         self.eps = eps
+        self.layer_norm = LayerNormalization(embed_dim)
         self.fc_q = nn.Linear(embed_dim, embed_dim)
         self.fc_k = nn.Linear(embed_dim, embed_dim)
         self.fc_v= nn.Linear(embed_dim, embed_dim)
@@ -34,6 +82,8 @@ class EfficientMultiHeadedAttention(nn.Module):
 
     def forward(self, x):
         batch_size, num_patches, _ = x.shape
+        x = self.layer_norm(x)
+        
         Q = self.fc_q(x) # [batch_size, num_patches, embed_dim]
         K = self.fc_k(x) # [batch_size, num_patches, embed_dim]
         V = self.fc_v(x) # [batch_size, num_patches, embed_dim]
@@ -131,6 +181,11 @@ class LayerNormalization(nn.Module):
 
 if __name__ == "__main__":
     x = torch.randn(2, 2, 2)
+    # vit_layer = VisionEncoder(4, 2, 2, 2, 2)
+    # x_layer = vit_layer(x)
+    # print(f"Before MLP: {x.shape}")
+    # print(f"After MLP: {x_layer.shape}")
+
 
     ln = LayerNormalization(2)
     x_norm = ln(x)
@@ -148,7 +203,7 @@ if __name__ == "__main__":
     print(f"shape after attn: {x_attn.shape}")
     print()
 
-    x = torch.randn(2, 2, 2)
+    # x = torch.randn(2, 2, 2)
     start = time.time()
     attn = MultiHeadedAttention(2, 2)
     x_attn = attn(x)
@@ -170,3 +225,14 @@ if __name__ == "__main__":
     print(f"Time taken: {time_taken_02:5f}")
 
     print(f"Speed up: {time_taken_01/time_taken_02}x faster") # Approx 3x faster
+
+
+    ffn = MLP(2, 3)
+    x_ffn = ffn(x)
+    print(f"Before MLP: {x.shape}")
+    print(f"After MLP: {x_ffn.shape}")
+    print()
+    pred = ClassificationHead(2, 3)
+    x_pred = pred(x)
+    print(f"Before Classification: {x.shape}")
+    print(f"After Classification: {x_pred.shape}")
