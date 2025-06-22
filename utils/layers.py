@@ -3,6 +3,12 @@ import time
 import torch.nn as nn
 import torch.nn.functional as F
 
+# TODO: Implement PatchEmbedding
+# TODO: Implement PositionalEncoding
+# TODO: Implement MLP
+# TODO: Implement TransformerBlock
+# TODO: Implement ClassificationHead
+
 class ViT(nn.Module):
     def __init__(self, embed_dim, num_heads, num_classes):
         super().__init__()
