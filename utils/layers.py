@@ -120,6 +120,7 @@ class LayerNormalization(nn.Module):
         # dim = 0 (along rows), 1 (along columns), -1 (along last dim)
         mean = torch.mean(x, dim=-1, keepdim=True) # [batch_size, num_patches, 1]
         var = torch.var(x, dim=-1, keepdim=True, unbiased=True) # [batch_size, num_patches, 1]
+        # unbaised uses N and not N - 1 for division
 
         x_shifted = (x-mean)
         x = x_shifted / torch.sqrt(var + self.eps)
