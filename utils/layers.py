@@ -3,18 +3,18 @@ import time
 import torch.nn as nn
 import torch.nn.functional as F
 
-# class ViT(nn.Module):
-#     def __init__(self, embed_dim, num_heads, num_classes):
-#         super().__init__()
-#         self.embed_dim = embed_dim
-#         self.pos_encoding = PositionalEncoding()
-#         self.layer_norm_01 = LayerNormalization(embed_dim)
-#         self.MHA = MultiHeadedAttention(num_classes, embed_dim)
-#         self.layer_norm_01 = LayerNormalization(embed_dim)
-#         self.mlp = nn.Linear(embed_dim, num_classes)
+class ViT(nn.Module):
+    def __init__(self, embed_dim, num_heads, num_classes):
+        super().__init__()
+        self.embed_dim = embed_dim
+        self.pos_encoding = PositionalEncoding()
+        self.layer_norm_01 = LayerNormalization(embed_dim)
+        self.MHA = EfficientMultiHeadedAttention(embed_dim, num_classes)
+        self.layer_norm_01 = LayerNormalization(embed_dim)
+        self.mlp = nn.Linear(embed_dim, num_classes)
     
-#     def forward(self, x):
-#         pass
+    def forward(self, x):
+        pass
 
 # I just found out that MultiHeadAttention is not just Attention n times
 # You lied to me https://youtu.be/bX2QwpjsmuA?si=LTpbFdlAsaUMmt2h
@@ -114,12 +114,12 @@ class LayerNormalization(nn.Module):
         self.embed_dim = embed_dim
         self.eps = epsilon
         self.alpha = nn.Parameter(torch.ones(embed_dim), requires_grad=True)
-        self.beta = nn.Parameter(torch.ones(embed_dim), requires_grad=True)
+        self.beta = nn.Parameter(torch.zeros(embed_dim), requires_grad=True)
 
     def forward(self, x): # x = [batch_size, num_patches, embed_dim]
         # dim = 0 (along rows), 1 (along columns), -1 (along last dim)
         mean = torch.mean(x, dim=-1, keepdim=True) # [batch_size, num_patches, 1]
-        var = torch.var(x, dim=-1, keepdim=True) # [batch_size, num_patches, 1]
+        var = torch.var(x, dim=-1, keepdim=True, unbiased=True) # [batch_size, num_patches, 1]
 
         x_shifted = (x-mean)
         x = x_shifted / torch.sqrt(var + self.eps)
