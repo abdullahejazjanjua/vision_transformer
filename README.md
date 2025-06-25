@@ -33,6 +33,7 @@ This implementation includes all the core components of a Vision Transformer:
 - `MLP`: Feed-forward network with layer normalization
 - `LayerNormalization`: Custom layer normalization
 - `ClassificationHead`: Final classification layer
+- `Solver`: Implements training and validation logic
 
 ### Key Features
 
@@ -49,6 +50,7 @@ This implementation includes all the core components of a Vision Transformer:
 - Modify main.py file
 
 ### Model Parameters
+>> These are passed in `Solver' class in `main.py`.
 
 - `imageNet_path` 
 - `image_size=224`
