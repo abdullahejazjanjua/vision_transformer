@@ -59,6 +59,7 @@ This implementation includes all the core components of a Vision Transformer:
 - `mlp_dim=3072` 
 - `num_classes=1000` 
 - `num_heads=12`
+- `num_layers`
 - `epochs=300` 
 - `dropout=0.1`
 - `num_steps=10000`

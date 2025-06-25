@@ -11,13 +11,13 @@ import numpy as np
 
 
 class Solver():
-    def __init__(self, imageNet_path, image_size=224, patch_size=16, embed_dim=768, mlp_dim=3072, num_classes=1000, num_heads=12, \
+    def __init__(self, imageNet_path, image_size=224, patch_size=16, embed_dim=768, mlp_dim=3072, num_classes=1000, num_heads=12, num_layers=12, \
                  epochs=300, dropout=0.1, num_steps=10000, weight_decay=0.1, warmup_steps=500, learning_rate=3e-2,\
                  decay_type="cosine"):
 
         self.epochs = epochs
         self.path = imageNet_path
-        self.model = ViT(image_size, patch_size, embed_dim, mlp_dim, num_classes, num_heads, dropout)
+        self.model = ViT(image_size, patch_size, embed_dim, mlp_dim, num_classes, num_layers, num_heads, dropout)
         self.trans = transforms.Compose([
             transforms.Scale((image_size , image_size))
             ])
