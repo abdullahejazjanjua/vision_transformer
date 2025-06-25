@@ -5,7 +5,7 @@ import torch.nn.functional as F
 
 
 class ViT(nn.Module):
-    def __init__(self, image_size, patch_size, embed_dim, mlp_dim, num_classes, num_heads, dropout, emb_dropout):
+    def __init__(self, image_size, patch_size, embed_dim, mlp_dim, num_classes, num_layers, num_heads, dropout=0.0):
         super().__init__()
         self.embed_dim = embed_dim
         self.num_patches = (image_size // patch_size) * (image_size // patch_size)
@@ -19,9 +19,15 @@ class ViT(nn.Module):
 
         self.class_head = ClassificationHead(embed_dim, num_classes)
 
-        self.transformer = VisionEncoder(embed_dim, mlp_dim, num_heads, dropout)
+        self.transformer = VisionEncoder(num_layers, embed_dim, mlp_dim, num_heads, dropout)
 
-        self.dropout = nn.Dropout(emb_dropout)
+        self.dropout = nn.Dropout(dropout)
+        patch_dim = 3 * patch_size * patch_size
+        self.projector = nn.Sequential(
+            nn.LayerNorm(patch_dim),
+            nn.Linear(patch_dim, embed_dim),
+            nn.LayerNorm(embed_dim),
+        )
     
     def forward(self, x):
         x = self.get_patch_embeddings(x)
@@ -37,7 +43,6 @@ class ViT(nn.Module):
 
 
     def get_patch_embeddings(self, x):
-        # TODO: Complete this
         # [batch_size, H, W, C] -> [Batch_size, num_patches, embed_dim]
         batch_size, C, H, W = x.shape
         # x = x.reshape(batch_size, H * W * C)
@@ -49,14 +54,13 @@ class ViT(nn.Module):
         x = x.permute(0, 2, 4, 3, 5, 1).contiguous()
         # print(x.shape)
         x = x.view(batch_size, self.num_patches, self.patch_size * self.patch_size * C)
-        return x
+        return self.dropout(x)
 
 
 class VisionEncoder(nn.Module):
-    def __init__(self, embed_dim, mlp_dim, num_heads, dropout):
+    def __init__(self, num_layers, embed_dim, mlp_dim, num_heads, dropout):
         super().__init__()
-
-        self.encoder = self._make_layers(embed_dim, mlp_dim, num_heads, dropout)
+        self.encoder = self._make_layers(num_layers, embed_dim, mlp_dim, num_heads, dropout)
 
     def forward(self, x):
         # print(self.encoder)
@@ -66,15 +70,15 @@ class VisionEncoder(nn.Module):
 
         return x
     
-    def _make_layers(self, embed_dim, mlp_dim, num_heads, dropout):
+    def _make_layers(self, num_layers, embed_dim, mlp_dim, num_heads, dropout):
 
-        module_list = nn.ModuleList()
-        for _ in range(num_heads):
+        module_list = nn.ModuleList([])
+        for _ in range(num_layers):
             module_list.append(
-                    nn.Sequential(
+                    nn.ModuleList([
                         EfficientMultiHeadedAttention(embed_dim, num_heads, dropout),
                         MLP(embed_dim, mlp_dim, dropout)
-                    )
+                    ])
             )
         
         return module_list
@@ -107,7 +111,7 @@ class MLP(nn.Module):
 # You lied to me https://youtu.be/bX2QwpjsmuA?si=LTpbFdlAsaUMmt2h
 
 class EfficientMultiHeadedAttention(nn.Module):
-    def __init__(self, embed_dim, num_heads, dropout, eps=1e-6, train=True):
+    def __init__(self, embed_dim, num_heads, dropout, eps=1e-6):
         super().__init__()
         self.embed_dim = embed_dim
         self.num_heads = num_heads
@@ -118,16 +122,14 @@ class EfficientMultiHeadedAttention(nn.Module):
         self.fc_k = nn.Linear(embed_dim, embed_dim)
         self.fc_v= nn.Linear(embed_dim, embed_dim)
         self.attn_dropout = nn.Dropout(dropout)
-        if train:
-            self.projector = (
-                nn.Sequential(
-                    nn.Linear(embed_dim, embed_dim),
-                    nn.Dropout(dropout)
-                )
+        
+        self.projector = (
+            nn.Sequential(
+                nn.Linear(embed_dim, embed_dim),
+                nn.Dropout(dropout)
             )
-        else:
-            self.projector = nn.Linear(embed_dim, embed_dim)
-
+        )
+        
     def forward(self, x):
         batch_size, num_patches, _ = x.shape
         x = self.layer_norm(x)
@@ -254,7 +256,7 @@ if __name__ == "__main__":
     # print(x.shape)
     # exit()
     # x = torch.randn(2, 2, 2)
-    vit_layer = ViT(image_size=224, patch_size=16, embed_dim=768, mlp_dim= 3, num_classes=2, num_heads=2, dropout=0.1, emb_dropout=0.1)
+    vit_layer = ViT(image_size=224, patch_size=16, embed_dim=768, mlp_dim= 3, num_classes=2, num_layers=1, num_heads=2, dropout=0.1)
     x_layer = vit_layer(x)
     print(f"Before ViT: {x.shape}")
     print(f"After ViT: {x_layer.shape}")
