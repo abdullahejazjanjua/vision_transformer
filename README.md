@@ -50,7 +50,7 @@ This implementation includes all the core components of a Vision Transformer:
 - Modify main.py file
 
 ### Model Parameters
->> These are passed in `Solver' class in `main.py`.
+> These are passed in `Solver' class in `main.py`.
 
 - `imageNet_path` 
 - `image_size=224`
