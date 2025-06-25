@@ -1,1 +1,1 @@
-__all__ = ["layers"]
+__all__ = ["layers", "solver"]
