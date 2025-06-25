@@ -2,6 +2,8 @@
 
 A PyTorch implementation of Vision Transformer (ViT) from scratch. This repository contains a clean, educational implementation of the attention mechanism and transformer architecture for computer vision tasks.
 
+> Due to lack of computational resources, I cannot train this model. 
+
 ## Features
 
 - Custom multi-head attention implementation
