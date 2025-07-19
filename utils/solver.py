@@ -201,7 +201,7 @@ class Solver():
                     print(f"        Iterations [{img_idx} / {total}] loss: {loss.item():.4f} avg_loss: {avg_run_loss:.2f}")
 
             avg_loss = sum(losses) / len(losses)
-            self.scheduler.step(avg_loss)
+            self.scheduler.step()
         
             checkpoint_save_dir = os.path.join(self.save_dir, f"checkpoint_{epoch}")
 
