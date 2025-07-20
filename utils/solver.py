@@ -13,7 +13,7 @@ import numpy as np
 
 
 class Solver():
-    def __init__(self, verbose=False, print_freq=100, batch_size=32, save_dir="logs", image_size=224, patch_size=16, embed_dim=768, mlp_dim=3072, num_classes=10, num_heads=12, num_layers=12, \
+    def __init__(self, verbose=False, print_freq=1000, batch_size=32, save_dir="logs", image_size=224, patch_size=16, embed_dim=768, mlp_dim=3072, num_classes=10, num_heads=12, num_layers=12, \
                  epochs=30, dropout=0.1, num_steps=10000, weight_decay=0.0001, warmup_steps=500, learning_rate=3e-2,\
                  decay_type="cosine"):
 
@@ -195,7 +195,7 @@ class Solver():
 
                 avg_run_loss = running_loss / (img_idx + 1)
                 
-                if img_idx % self.print_freq == 0 and img_idx > 0 and not self.verbose: 
+                if (img_idx % self.print_freq == 0 and img_idx > 0 and not self.verbose): 
                     print(f"    {img_idx}/{total} avg_loss: {avg_run_loss:.4f}")
                 if self.verbose:
                     print(f"        Iterations [{img_idx} / {total}] loss: {loss.item():.4f} avg_loss: {avg_run_loss:.2f}")
