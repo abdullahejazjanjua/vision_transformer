@@ -14,7 +14,7 @@ import numpy as np
 
 class Solver():
     def __init__(self, verbose=False, print_freq=100, batch_size=32, save_dir="logs", image_size=224, patch_size=16, embed_dim=768, mlp_dim=3072, num_classes=10, num_heads=12, num_layers=12, \
-                 epochs=30, dropout=0.1, num_steps=10000, weight_decay=0.1, warmup_steps=500, learning_rate=3e-2,\
+                 epochs=30, dropout=0.1, num_steps=10000, weight_decay=0.0001, warmup_steps=500, learning_rate=3e-2,\
                  decay_type="cosine"):
 
         if torch.cuda.is_available():
@@ -158,7 +158,7 @@ class Solver():
                 print(f"Starting training!")
 
         # self.model.train()
-        last_epoch_loss = 0
+        # last_epoch_loss = 0
         for epoch in range(start_epoch, self.epochs):
             self.model.train()
             losses = []
@@ -213,14 +213,14 @@ class Solver():
                 'loss': avg_loss,
                 }, checkpoint_save_dir)
             
-            if epoch > start_epoch: 
-                 loss_difference = abs(last_epoch_loss - avg_loss)
+            # if epoch > start_epoch: 
+            #      loss_difference = abs(last_epoch_loss - avg_loss)
 
-                 if loss_difference < self.loss_threshold:
-                     print(f"Loss difference between epochs ({loss_difference:.4f}) is below the threshold ({self.loss_threshold}). Stopping training.")
-                     break
+            #      if loss_difference < self.loss_threshold:
+            #          print(f"Loss difference between epochs ({loss_difference:.4f}) is below the threshold ({self.loss_threshold}). Stopping training.")
+            #          break
 
-            last_epoch_loss = avg_loss
+            # last_epoch_loss = avg_loss
             
             self.model.eval()
             correct = 0
