@@ -124,7 +124,7 @@ The following configuration was used for training:
 
 # Performance Comparison
 | *Model* | *Epoch* | *Accuracy* | *Loss* | 
-| --- | --- | --- | --- | --- |
+| --- | --- | --- | --- |
 | ViT | 1 | 41% | 1.66 |
 
 
