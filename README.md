@@ -100,13 +100,35 @@ cd vision-transformer
 pip install -r requirements.txt
 ```
 
-## Training on ImageNet
+## Training
 
 - Modify parameters passed to the Solver class to implement any transformer
 
 ```bash
 python main.py
 ```
+
+# Performance
+
+# Model Configuration
+The following configuration was used for training:
+
+- `image_size=224`
+- `patch_size=16`
+- `embed_dim=512`
+- `mlp_dim=3072`
+- `num_classes=20`
+- `num_layers=6`
+- `batch_size=16`
+- `num_heads=8`
+
+# Performance Comparison
+| *Model* | *Epoch* | *Accuracy* | *Loss* | 
+| --- | --- | --- | --- | --- |
+| ViT | 1 | 41% | 1.66 |
+
+
+>[Note:] Further training was not possible due to resource constraints. The above results are based on a single epoch of training.
 
 ## Educational Value
 
