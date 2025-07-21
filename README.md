@@ -128,7 +128,7 @@ The following configuration was used for training:
 | ViT | 1 | 41% | 1.66 |
 
 
->[Note:] Further training was not possible due to resource constraints. The above results are based on a single epoch of training.
+>Note: Further training was not possible due to resource constraints. The above results are based on a single epoch of training.
 
 ## Educational Value
 
