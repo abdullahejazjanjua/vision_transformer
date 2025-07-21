@@ -13,9 +13,11 @@ import numpy as np
 
 
 class Solver():
-    def __init__(self, verbose=False, print_freq=100, batch_size=32, save_dir="logs", image_size=224, patch_size=16, embed_dim=768, mlp_dim=3072, num_classes=10, num_heads=12, num_layers=12, \
+    def __init__(self, verbose=False, print_freq=100, batch_size=32, save_dir="logs", image_size=224, patch_size=16, embed_dim=768, \
+                 mlp_dim=3072, num_classes=10, num_heads=12, num_layers=12, \
                  epochs=30, dropout=0.1, num_steps=10000, weight_decay=0.0001, warmup_steps=500, learning_rate=3e-2,\
                  decay_type="cosine"):
+        
 
         if torch.cuda.is_available():
             self.device = "cuda"
@@ -240,7 +242,6 @@ class Solver():
                     preds = torch.argmax(output, dim=1)
                     total_gt += grd_truth.size(0)
                     correct += (preds == grd_truth).sum().item()
-
 
                     if val_idx % self.print_freq == 0 and val_idx > 0:
                         print(f"        Iterations [{val_idx} / {total_val}] loss: {val_loss.item():.20f}")

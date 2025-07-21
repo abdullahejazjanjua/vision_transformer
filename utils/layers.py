@@ -7,6 +7,9 @@ import torch.nn.functional as F
 class ViT(nn.Module):
     def __init__(self, image_size, patch_size, embed_dim, mlp_dim, num_classes, num_layers, num_heads, dropout=0.0):
         super().__init__()
+
+        assert embed_dim % num_heads == 0, "embed_dim must be multiple of num_heads"
+
         self.embed_dim = embed_dim
         self.num_patches = (image_size // patch_size) * (image_size // patch_size)
         self.patch_size = patch_size
@@ -54,7 +57,7 @@ class ViT(nn.Module):
         x = x.permute(0, 2, 4, 3, 5, 1).contiguous()
         # print(x.shape)
         x = x.view(batch_size, self.num_patches, self.patch_size * self.patch_size * C)
-        return self.dropout(x)
+        return self.dropout(self.projector(x))
 
 
 class VisionEncoder(nn.Module):
@@ -256,7 +259,7 @@ if __name__ == "__main__":
     # print(x.shape)
     # exit()
     # x = torch.randn(2, 2, 2)
-    vit_layer = ViT(image_size=224, patch_size=16, embed_dim=768, mlp_dim= 3, num_classes=2, num_layers=1, num_heads=2, dropout=0.1)
+    vit_layer = ViT(image_size=224, patch_size=16, embed_dim=512, mlp_dim= 3, num_classes=2, num_layers=1, num_heads=12, dropout=0.1)
     x_layer = vit_layer(x)
     print(f"Before ViT: {x.shape}")
     print(f"After ViT: {x_layer.shape}")
