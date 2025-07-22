@@ -176,7 +176,7 @@ class Solver():
 
                 outputs = self.model(img)
                 loss = self.Criterion(outputs, grd_truth)
-                losses.append(loss)
+                losses.append(loss.item())
 
 
                 loss.backward()
@@ -235,7 +235,7 @@ class Solver():
 
                     out = self.model(img)
                     val_loss = self.Criterion(out, grd_truth)
-                    val_losses.append(val_loss)
+                    val_losses.append(val_loss.item())
 
                     output = F.softmax(out, dim=1)
 
