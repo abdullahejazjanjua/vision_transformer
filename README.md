@@ -107,28 +107,32 @@ pip install -r requirements.txt
 ```bash
 python main.py
 ```
-<!-- 
-# Performance
 
-# Model Configuration
+Here's an improved version:
+
+*Performance*
+*Model Configuration*
+
 The following configuration was used for training:
 
 - `image_size=224`
 - `patch_size=16`
 - `embed_dim=512`
 - `mlp_dim=3072`
-- `num_classes=20`
+- `num_classes=10`
 - `num_layers=6`
-- `batch_size=16`
+- `batch_size=32`
 - `num_heads=8`
 
-# Performance Comparison
-| *Model* | *Epoch* | *Accuracy* | *Loss* | 
-| --- | --- | --- | --- |
-| ViT | 1 | 41% | 1.66 | -->
+*Performance Comparison*
 
+| Epochs | Accuracy |
+| --- | --- |
+| 1    | 44.00%  |
+| 30   | 69.55%  |
+| 50   | 70.66%  |
 
->Note: Further training was not possible due to resource constraints. The above results are based on a single epoch of training.
+> Vision Transformers (ViT) typically require more epochs to converge, which may lead to further improvements in accuracy beyond 50 epochs.
 
 ## Educational Value
 
